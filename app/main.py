@@ -6,7 +6,7 @@ app = FastAPI()
 
 @app.get("/")
 def root():
-    URL = "http://api.openweathermap.org/data/2.5/forecast?id=524901&appid={2c1d56123e5c377524128dbc99536f60}"
+    URL = "https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&exclude=minutely,hourly&units=metric&appId=2c1d56123e5c377524128dbc99536f60"
     contents = requests.get(URL).text
     
     return { "message": contents }
