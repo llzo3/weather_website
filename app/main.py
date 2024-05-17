@@ -5,11 +5,11 @@ app = FastAPI()
 
 LAT = 37.477550020716194
 LON = 126.98212524649105
-API_KEY = "2c1d56123e5c377524128dbc99536f60"
+API_KEY = "7984a6ee79bc96d84c6a09aaf4cdf934"
 
 @app.get("/")
 def root():
-    URL = f"https://api.openweathermap.org/data/2.5/onecall?lat={LAT}&lon={LON}&exclude=minutely,hourly&units=metric&appid={API_KEY}"
+    URL = f"http://api.openweathermap.org/data/2.5/forecast?lat={LAT}&lon={LON}&appid={API_KEY}"
     response = requests.get(URL)
     
     # 응답이 성공적인지 확인 (HTTP 상태 코드 200)
