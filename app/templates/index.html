@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>날씨 정보</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            text-align: center;
+            padding: 50px;
+        }
+        .weather-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: inline-block;
+        }
+        .weather-header {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        .weather-details {
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="weather-container">
+        <div class="weather-header">{{ weather.city }}의 {{ weather.date }} 기상환경은?</div>
+        <div class="weather-details">
+            온도: {{ weather.temperature }}°C<br>
+            체감온도: {{ weather.feels_like }}°C<br>
+            최소온도: {{ weather.temp_min }}°C<br>
+            최대온도: {{ weather.temp_max }}°C<br>
+            기상환경: {{ weather.description }}
+        </div>
+    </div>
+</body>
+</html>
