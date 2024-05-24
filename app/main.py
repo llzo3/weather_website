@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request
 from fastapi.templating import Jinja2Templates
 import requests
+import datetime
 
 app = FastAPI()
 
@@ -20,7 +21,7 @@ def root(request: Request):
         data = response.json()
         weather_data = {
             "city": data["name"],
-            "date": "5월 24일",  # 예시 날짜, 실제로는 현재 날짜를 가져올 수 있음
+            "date": datetime.datetime.now().strftime("%Y년 %m월 %d일"),  # 예시 날짜, 실제로는 현재 날짜를 가져올 수 있음
             "temperature": data["main"]["temp"],
             "feels_like": data["main"]["feels_like"],
             "temp_min": data["main"]["temp_min"],
