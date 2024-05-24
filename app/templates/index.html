@@ -27,6 +27,19 @@
     </style>
 </head>
 <body>
+    <div class="location-list">
+        <form action="/" method="get">
+            <label for="city">다른 지역도 볼래:</label>
+            <select name="city" id="city">
+                <option value="Seoul">서울특별시</option>
+                <option value="Busan">부산광역시</option>
+                <option value="Daegu">대구광역시</option>
+                <!-- 다른 지역 추가 -->
+            </select>
+            <button type="submit">선택</button>
+        </form>
+    </div>
+    
     <div class="weather-container">
         <div class="weather-header">{{ weather.city }}의 {{ weather.date }} 기상환경은?</div>
         <div class="weather-details">

@@ -7,14 +7,11 @@ app = FastAPI()
 
 templates = Jinja2Templates(directory="app/templates")
 
-LAT = 37.477550020716194
-LON = 126.98212524649105
 API_KEY = "7984a6ee79bc96d84c6a09aaf4cdf934"
-CITY = "Seoul"
 
 @app.get("/")
-def root(request: Request):
-    URL = f"https://api.openweathermap.org/data/2.5/weather?q={CITY}&appid={API_KEY}&units=metric&lang=kr"
+def root(request: Request, city: str = "Seoul"):
+    URL = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={API_KEY}&units=metric&lang=kr"
     response = requests.get(URL)
 
     if response.status_code == 200:
