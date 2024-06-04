@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Weather Data</title>
+</head>
+<body>
+    <h1>Weather Data</h1>
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>City</th>
+            <th>Date</th>
+            <th>Temperature (°C)</th>
+            <th>Feels Like (°C)</th>
+            <th>Min Temp (°C)</th>
+            <th>Max Temp (°C)</th>
+            <th>Description</th>
+        </tr>
+        {% for weather in weather_data %}
+        <tr>
+            <td>{{ weather.id }}</td>
+            <td>{{ weather.city }}</td>
+            <td>{{ weather.date }}</td>
+            <td>{{ weather.temperature }}</td>
+            <td>{{ weather.feels_like }}</td>
+            <td>{{ weather.temp_min }}</td>
+            <td>{{ weather.temp_max }}</td>
+            <td>{{ weather.description }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

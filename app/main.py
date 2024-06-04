@@ -1,10 +1,9 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Depends
 from fastapi.templating import Jinja2Templates
-from sqlalchemy.orm import Session
+from fastapi.responses import HTMLResponse
+import sqlite3
 import requests
 import datetime
-
-from .database import SessionLocal, Weather
 
 app = FastAPI()
 
@@ -12,13 +11,13 @@ templates = Jinja2Templates(directory="app/templates")
 
 API_KEY = "7984a6ee79bc96d84c6a09aaf4cdf934"
 
-# 데이터베이스 세션을 요청마다 생성하고 닫기 위한 의존성
 def get_db():
-    db = SessionLocal()
+    db_path = "weather.db"
+    conn = sqlite3.connect(db_path)
     try:
-        yield db
+        yield conn.cursor()
     finally:
-        db.close()
+        conn.close()
 
 @app.get("/")
 def root(request: Request, city: str = "Seoul"):
@@ -37,30 +36,33 @@ def root(request: Request, city: str = "Seoul"):
             "description": data["weather"][0]["description"]
         }
 
-         # 데이터베이스에 날씨 데이터 저장
-        weather_entry = Weather(
-            city=weather_data["city"],
-            date=datetime.datetime.now(),
-            temperature=weather_data["temperature"],
-            feels_like=weather_data["feels_like"],
-            temp_min=weather_data["temp_min"],
-            temp_max=weather_data["temp_max"],
-            description=weather_data["description"]
-        )
-        db.add(weather_entry)
-        db.commit()
-        db.refresh(weather_entry)
+        # 데이터베이스에 날씨 데이터 저장
+        conn = sqlite3.connect("weather.db")
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO weather (city, date, temperature, feels_like, temp_min, temp_max, description)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, (weather_data["city"], datetime.datetime.now(), weather_data["temperature"], 
+              weather_data["feels_like"], weather_data["temp_min"], weather_data["temp_max"], weather_data["description"]))
+        conn.commit()
+        conn.close()
 
         return templates.TemplateResponse("index.html", {"request": request, "weather": weather_data})
     else:
         return {"message": "Failed to fetch weather data"}
 
-# FastAPI 엔드포인트로 데이터 조회
-@app.get("/weather")
-def read_weather_data(db: Session = Depends(get_db)):
-    weather_data = db.query(Weather).all()
-    return weather_data
+@app.get("/weather", response_class=HTMLResponse)
+def read_weather_data(request: Request):
+    conn = sqlite3.connect("weather.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM weather")
+    rows = cursor.fetchall()
+    conn.close()
 
-@app.get("/home")
-def home():
-    return {"message": "Home!"}
+    weather_data = [
+        {"id": row[0], "city": row[1], "date": row[2], "temperature": row[3], "feels_like": row[4], 
+         "temp_min": row[5], "temp_max": row[6], "description": row[7]} 
+        for row in rows
+    ]
+    
+    return templates.TemplateResponse("weather.html", {"request": request, "weather_data": weather_data})
