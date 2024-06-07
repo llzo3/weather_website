@@ -35,10 +35,7 @@ function getWeatherImage(weather, feels_like) {
 
 function updateBackground(sunrise, sunset) {
     const currentTime = new Date();
-    const sunriseTime = new Date(sunrise);
-    const sunsetTime = new Date(sunset);
-
-    if (currentTime >= sunriseTime && currentTime < sunsetTime) {
+    if (currentTime >= sunrise && currentTime < sunset) {
         body.style.backgroundImage = "url('/static/images/day.jpg')";
     } else {
         body.style.backgroundImage = "url('/static/images/night.jpg')";
@@ -75,67 +72,15 @@ function fetchWeather(lat, lon) {
         });
 }
 
-// 위도 경도 입력
+// 초기 위치 설정
 const lat = 37.477550020716194;
 const lon = 126.98212524649105;
+fetchWeather(lat, lon);
 
-fetch(
-    `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&exclude=minutely,hourly&units=metric&appId=2fa3f03d3732cc2adffbdcc9cd0ff4af`
-  )
-    .then(function (response) {
-      return response.json();
-    })
-    .then(function (data) {
-      // data = API 호출 후 원본 데이터
-  
-      const curr = data.current;
-      const currTimestamp = curr.dt;
-      const currDate = timestampToDate(currTimestamp);
-      const currTemp = Math.round(curr.temp);
-      const currWeatherId = curr.weather[0].id;
-  
-      // 오늘의 기상정보 객체 생성
-      const today = {
-        date: currDate,
-        tem: currTemp,
-        weather: currWeatherId,
-      };
-  
-      updateScreen(today);
-  
-      // +7일 데이터 받아오기
-  
-      const daily = data.daily;
-      let dailyList = [];
-  
-      for (let i = 1; i < daily.length; i++) {
-        const dailyTimestamp = daily[i].dt;
-        const dailyDate = timestampToDate(dailyTimestamp);
-        const dailyTemp = Math.round(daily[i].temp.day);
-        const dailyWeatherId = daily[i].weather[0].id;
-  
-        dailyList.push({
-          date: dailyDate,
-          tem: dailyTemp,
-          weather: dailyWeatherId,
-        });
-      }
-  
-      // 날짜 선택 드롭다운 버튼 클릭해서 옵션 열고 닫기
-      datePicker.addEventListener("click", function () {
-        dateCardWrapper.classList.toggle("hidden");
-      });
-  
-      // 날짜 선택지 생성 및 이벤트 부착
-      for (let i = 0; i < dailyList.length; i++) {
-        const dateOption = document.createElement("div");
-        dateOption.classList.add("date-card");
-        dateOption.innerHTML = dailyList[i].date;
-        dateOption.addEventListener("click", (e) => {
-          updateScreen(dailyList[i]);
-          dateCardWrapper.classList.toggle("hidden");
-          window.scroll({ top: 0, behavior: "smooth" });
-        });
-        dateCardWrapper.appendChild(dateOption);
-      }
+document.querySelectorAll('.history-item').forEach(item => {
+    item.addEventListener('click', function() {
+        const lat = this.getAttribute('data-lat');
+        const lon = this.getAttribute('data-lon');
+        fetchWeather(lat, lon);
     });
+});
