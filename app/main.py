@@ -6,6 +6,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 import requests
 import datetime
+import pytz
 import os
 
 # 절대 경로로 데이터베이스 파일 설정
@@ -63,11 +64,21 @@ def get_weather_by_coords(lat: float, lon: float, db: Session = Depends(get_db))
 
     if response.status_code == 200:
         data = response.json()
+        timezone_response = requests.get(f"https://api.openweathermap.org/data/2.5/timezone?lat={lat}&lon={lon}&appid={API_KEY}")
+        if timezone_response.status_code == 200:
+            timezone_data = timezone_response.json()
+            timezone = timezone_data["timezone"]
+        else:
+            timezone = "UTC"
+
+        tz = pytz.timezone(timezone)
+        local_time = datetime.datetime.now(tz).strftime("%Y년 %m월 %d일 %H시 %M분 %S초")
+
         weather_data = {
             "city": data["name"],
             "lat": lat,
             "lon": lon,
-            "date": datetime.datetime.now().strftime("%Y년 %m월 %d일 %H시 %M분 %S초"),
+            "date": local_time,
             "temperature": data["main"]["temp"],
             "feels_like": data["main"]["feels_like"],
             "temp_min": data["main"]["temp_min"],
@@ -79,7 +90,7 @@ def get_weather_by_coords(lat: float, lon: float, db: Session = Depends(get_db))
             city=weather_data["city"],
             lat=lat,
             lon=lon,
-            date=datetime.datetime.now(),
+            date=datetime.datetime.now(tz),
             temperature=weather_data["temperature"],
             feels_like=weather_data["feels_like"],
             temp_min=weather_data["temp_min"],
