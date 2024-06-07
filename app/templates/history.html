@@ -9,19 +9,13 @@
     <h1>최근 검색 기록</h1>
     <ul>
         {% for record in records %}
-        <li class="history-item" data-lat="{{ record.lat }}" data-lon="{{ record.lon }}">
-            {{ record.city }} - {{ record.date.strftime('%Y년 %m월 %d일 %H시 %M분 %S초') }}
+        <li>
+            {{ record.city }} - {{ record.date.strftime('%Y년 %m월 %d일 %H시 %M분 %S초') }}<br>
+            온도: {{ record.temperature }}°C, 체감온도: {{ record.feels_like }}°C, 기상환경: {{ record.description }}<br>
+            습도: {{ record.humidity }}%, 풍속: {{ record.wind_speed }} m/s, 기압: {{ record.pressure }} hPa<br>
+            자외선지수: {{ record.uv_index }}, 일출: {{ record.sunrise }}, 일몰: {{ record.sunset }}
         </li>
         {% endfor %}
     </ul>
-    <script>
-        document.querySelectorAll('.history-item').forEach(item => {
-            item.addEventListener('click', function() {
-                const lat = this.getAttribute('data-lat');
-                const lon = this.getAttribute('data-lon');
-                fetchWeather(lat, lon);
-            });
-        });
-    </script>
 </body>
 </html>

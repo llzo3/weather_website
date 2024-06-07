@@ -4,16 +4,16 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
+from dotenv import load_dotenv
+import os
 import requests
 import datetime
-import os
-from dotenv import load_dotenv
 import pytz
 
-load_dotenv()  # .env 파일에서 환경 변수 로드
+load_dotenv()  # .env 파일의 환경 변수 로드
 
 DATABASE_URL = os.getenv("DATABASE_URL")
-WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
+API_KEY = os.getenv("API_KEY")
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -31,9 +31,9 @@ class WeatherRecord(Base):
     temp_min = Column(Float)
     temp_max = Column(Float)
     description = Column(String)
-    humidity = Column(Float)
+    humidity = Column(Integer)
     wind_speed = Column(Float)
-    pressure = Column(Float)
+    pressure = Column(Integer)
     uv_index = Column(Float)
     sunrise = Column(DateTime)
     sunset = Column(DateTime)
@@ -52,6 +52,11 @@ def get_db():
     finally:
         db.close()
 
+def convert_time_to_local(timestamp, timezone):
+    utc_dt = datetime.datetime.utcfromtimestamp(timestamp).replace(tzinfo=pytz.utc)
+    local_dt = utc_dt.astimezone(pytz.timezone(timezone))
+    return local_dt
+
 @app.get("/")
 def root(request: Request, db: Session = Depends(get_db)):
     records = db.query(WeatherRecord).order_by(WeatherRecord.id.desc()).limit(5).all()
@@ -59,21 +64,16 @@ def root(request: Request, db: Session = Depends(get_db)):
 
 @app.get("/weather")
 def get_weather_by_coords(lat: float, lon: float, db: Session = Depends(get_db)):
-    URL = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={WEATHER_API_KEY}&units=metric&lang=kr"
+    URL = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API_KEY}&units=metric"
     response = requests.get(URL)
 
     if response.status_code == 200:
         data = response.json()
-        timezone_offset = data["timezone"]
-
-        def to_local_time(utc_time):
-            return datetime.datetime.utcfromtimestamp(utc_time + timezone_offset)
-
         weather_data = {
             "city": data["name"],
             "lat": lat,
             "lon": lon,
-            "date": to_local_time(data["dt"]).strftime("%Y년 %m월 %d일 %H시 %M분 %S초"),
+            "date": convert_time_to_local(data["dt"], data["timezone"]),
             "temperature": data["main"]["temp"],
             "feels_like": data["main"]["feels_like"],
             "temp_min": data["main"]["temp_min"],
@@ -82,16 +82,16 @@ def get_weather_by_coords(lat: float, lon: float, db: Session = Depends(get_db))
             "humidity": data["main"]["humidity"],
             "wind_speed": data["wind"]["speed"],
             "pressure": data["main"]["pressure"],
-            "uv_index": data["main"].get("uvi", 0),
-            "sunrise": to_local_time(data["sys"]["sunrise"]).strftime("%H:%M:%S"),
-            "sunset": to_local_time(data["sys"]["sunset"]).strftime("%H:%M:%S")
+            "uv_index": data["uvi"],
+            "sunrise": convert_time_to_local(data["sys"]["sunrise"], data["timezone"]),
+            "sunset": convert_time_to_local(data["sys"]["sunset"], data["timezone"])
         }
 
         weather_record = WeatherRecord(
             city=weather_data["city"],
             lat=lat,
             lon=lon,
-            date=datetime.datetime.utcnow(),
+            date=datetime.datetime.now(),
             temperature=weather_data["temperature"],
             feels_like=weather_data["feels_like"],
             temp_min=weather_data["temp_min"],
@@ -101,8 +101,8 @@ def get_weather_by_coords(lat: float, lon: float, db: Session = Depends(get_db))
             wind_speed=weather_data["wind_speed"],
             pressure=weather_data["pressure"],
             uv_index=weather_data["uv_index"],
-            sunrise=datetime.datetime.utcfromtimestamp(data["sys"]["sunrise"] + timezone_offset),
-            sunset=datetime.datetime.utcfromtimestamp(data["sys"]["sunset"] + timezone_offset)
+            sunrise=weather_data["sunrise"],
+            sunset=weather_data["sunset"]
         )
         db.add(weather_record)
         db.commit()
@@ -112,6 +112,10 @@ def get_weather_by_coords(lat: float, lon: float, db: Session = Depends(get_db))
         return {"message": "Failed to fetch weather data"}
 
 @app.get("/history")
-def get_weather_history(request: Request, db: Session = Depends(get_db)):
+def get_history(request: Request, db: Session = Depends(get_db)):
     records = db.query(WeatherRecord).order_by(WeatherRecord.id.desc()).all()
     return templates.TemplateResponse("history.html", {"request": request, "records": records})
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8080)

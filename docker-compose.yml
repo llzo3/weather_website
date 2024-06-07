@@ -2,9 +2,19 @@ version: "3.11"
 
 services:
   fastapi:
-    build: .
+    image: fastapi
+    build:
+      context: .
+      dockerfile: Dockerfile
     command: uvicorn app.main:app --host 0.0.0.0 --port 8080 --reload
     ports:
-     - 8080:8080
+      - "8080:8080"
     volumes:
-     - ./app:/code/app
+      - ./app:/code/app
+      - ./app/static:/code/app/static
+      - ./app/templates:/code/app/templates
+      - ./app/__init__.py:/code/app/__init__.py
+      - ./app/database.py:/code/app/database.py
+      - ./app/models.py:/code/app/models.py
+    env_file:
+      - .env
