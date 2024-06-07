@@ -31,7 +31,7 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
 templates = Jinja2Templates(directory="app/templates")
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 API_KEY = "7984a6ee79bc96d84c6a09aaf4cdf934"
 
