@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>검색 기록</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <h1>최근 검색 기록</h1>
+    <ul>
+        {% for record in records %}
+        <li class="history-item" data-lat="{{ record.lat }}" data-lon="{{ record.lon }}">
+            {{ record.city }} - {{ record.date.strftime('%Y년 %m월 %d일 %H시 %M분 %S초') }}
+        </li>
+        {% endfor %}
+    </ul>
+    <script>
+        document.querySelectorAll('.history-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const lat = this.getAttribute('data-lat');
+                const lon = this.getAttribute('data-lon');
+                fetchWeather(lat, lon);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -5,40 +5,7 @@
     <title>날씨 정보</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            text-align: center;
-            padding: 50px;
-        }
-        #map {
-            height: 600px;
-            width: 100%;
-            margin: 20px auto;
-        }
-        .weather-container {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            display: inline-block;
-        }
-        .weather-header {
-            font-size: 24px;
-            margin-bottom: 10px;
-        }
-        .weather-details {
-            font-size: 18px;
-        }
-        .history-container {
-            margin-top: 20px;
-        }
-        .history-item {
-            cursor: pointer;
-            color: blue;
-        }
-    </style>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
     <div id="map"></div>
@@ -56,43 +23,6 @@
             {% endfor %}
         </ul>
     </div>
-    <script>
-        var map = L.map('map').setView([0, 0], 2);  // 전세계 지도로 초기 설정
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 18,
-        }).addTo(map);
-
-        function fetchWeather(lat, lon) {
-            fetch(`/weather?lat=${lat}&lon=${lon}`)
-                .then(response => response.json())
-                .then(data => {
-                    const container = document.getElementById('weather-container');
-                    const header = document.getElementById('weather-header');
-                    const details = document.getElementById('weather-details');
-                    
-                    header.textContent = `${data.city}의 ${data.date} 기상환경은?`;
-                    details.innerHTML = `
-                        온도: ${data.temperature}°C<br>
-                        체감온도: ${data.feels_like}°C<br>
-                        최소온도: ${data.temp_min}°C<br>
-                        최대온도: ${data.temp_max}°C<br>
-                        기상환경: ${data.description}
-                    `;
-                });
-        }
-
-        map.on('click', function(e) {
-            var coord = e.latlng;
-            fetchWeather(coord.lat, coord.lng);
-        });
-
-        document.querySelectorAll('.history-item').forEach(item => {
-            item.addEventListener('click', function() {
-                const lat = this.getAttribute('data-lat');
-                const lon = this.getAttribute('data-lon');
-                fetchWeather(lat, lon);
-            });
-        });
-    </script>
+    <script src="/static/script.js"></script>
 </body>
 </html>
