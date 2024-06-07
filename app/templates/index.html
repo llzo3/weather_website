@@ -3,53 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <title>날씨 정보</title>
+    <link rel="stylesheet" href="/static/style.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            text-align: center;
-            padding: 50px;
-        }
-        #map {
-            height: 600px;
-            width: 100%;
-            margin: 20px auto;
-        }
-        .weather-container {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            display: inline-block;
-        }
-        .weather-header {
-            font-size: 24px;
-            margin-bottom: 10px;
-        }
-        .weather-details {
-            font-size: 18px;
-        }
-        .history-container {
-            margin-top: 20px;
-        }
-        .history-item {
-            cursor: pointer;
-            color: blue;
-        }
-        .favorite-container {
-            margin-top: 20px;
-        }
-    </style>
 </head>
 <body>
-    <h1>날씨 정보</h1>
     <div id="map"></div>
     <div class="weather-container" id="weather-container">
         <div class="weather-header" id="weather-header">기상환경</div>
         <div class="weather-details" id="weather-details"></div>
-        <img id="weather-img" alt="Weather Image" />
+        <img id="weather-img" src="" alt="Weather Image">
     </div>
     <div class="history-container">
         <h3>최근 검색 기록</h3>
@@ -58,14 +21,6 @@
             <li class="history-item" data-lat="{{ record.lat }}" data-lon="{{ record.lon }}">
                 {{ record.city }} - {{ record.date.strftime('%Y년 %m월 %d일 %H시 %M분 %S초') }}
             </li>
-            {% endfor %}
-        </ul>
-    </div>
-    <div class="favorite-container">
-        <h3>자주 검색한 지역</h3>
-        <ul id="favorite-list">
-            {% for city in favorites %}
-            <li class="favorite-item">{{ city }}</li>
             {% endfor %}
         </ul>
     </div>

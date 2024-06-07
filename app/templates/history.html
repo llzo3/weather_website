@@ -3,23 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <title>검색 기록</title>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <h1>검색 기록</h1>
-    <div>
-        <ul>
+    <div class="history-container">
+        <h3>전체 검색 기록</h3>
+        <ul id="history-list">
             {% for record in records %}
-            <li>{{ record.city }} - {{ record.date.strftime('%Y년 %m월 %d일 %H시 %M분 %S초') }}</li>
+            <li class="history-item" data-lat="{{ record.lat }}" data-lon="{{ record.lon }}">
+                {{ record.city }} - {{ record.date.strftime('%Y년 %m월 %d일 %H시 %M분 %S초') }}
+            </li>
             {% endfor %}
         </ul>
     </div>
-    <div>
-        <h2>자주 검색한 지역</h2>
-        <ul>
-            {% for city in favorites %}
-            <li>{{ city }}</li>
-            {% endfor %}
-        </ul>
-    </div>
+    <script src="/static/script.js"></script>
 </body>
 </html>
