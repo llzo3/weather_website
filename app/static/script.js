@@ -1,24 +1,22 @@
-const dateCardWrapper = document.querySelector(".date-card-wrapper");
-const datePicker = document.querySelector("#date-picker");
-const title = document.querySelector("#title");
-const weatherInfo = document.querySelector("#weather-info");
-const weatherImg = document.querySelector("#weather-img");
-const personImg = document.querySelector("#person-img");
-const body = document.querySelector("body");
+const map = L.map('map').setView([37.5665, 126.9780], 10); // Default location is Seoul
 
-function timestampToDate(timestamp) {
-    const fullDate = new Date(timestamp * 1000);
-  
-    const month = fullDate.getMonth() + 1;
-    const date = fullDate.getDate();
-  
-    return `${month}월 ${date}일`;
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 18,
+}).addTo(map);
+
+function updateBackground(sunrise, sunset) {
+    const currentTime = new Date();
+    if (currentTime >= sunrise && currentTime < sunset) {
+        document.body.style.backgroundImage = "url('/static/images/day.jpg')";
+    } else {
+        document.body.style.backgroundImage = "url('/static/images/night.jpg')";
+    }
 }
 
-function getWeatherImage(weather, feels_like) {
-    if (weather.includes("rain")) {
+function getWeatherImage(description, feels_like) {
+    if (description.includes("rain")) {
         return "/static/images/rainy.png";
-    } else if (weather.includes("snow")) {
+    } else if (description.includes("snow")) {
         return "/static/images/snowy.png";
     } else {
         if (feels_like > 30) {
@@ -33,23 +31,14 @@ function getWeatherImage(weather, feels_like) {
     }
 }
 
-function updateBackground(sunrise, sunset) {
-    const currentTime = new Date();
-    if (currentTime >= sunrise && currentTime < sunset) {
-        body.style.backgroundImage = "url('/static/images/day.jpg')";
-    } else {
-        body.style.backgroundImage = "url('/static/images/night.jpg')";
-    }
-}
-
 function fetchWeather(lat, lon) {
     fetch(`/weather?lat=${lat}&lon=${lon}`)
         .then(response => response.json())
         .then(data => {
-            const container = document.getElementById('weather-container');
             const header = document.getElementById('weather-header');
             const details = document.getElementById('weather-details');
-            
+            const weatherImg = document.getElementById('weather-img');
+
             header.textContent = `${data.city}의 ${data.date} 기상환경은?`;
             details.innerHTML = `
                 온도: ${data.temperature}°C<br>
@@ -65,17 +54,18 @@ function fetchWeather(lat, lon) {
                 일몰: ${data.sunset}
             `;
 
-            const sunrise = new Date(data.sunrise);
-            const sunset = new Date(data.sunset);
+            const sunrise = new Date(`1970-01-01T${data.sunrise}Z`);
+            const sunset = new Date(`1970-01-01T${data.sunset}Z`);
             updateBackground(sunrise, sunset);
+
             weatherImg.src = getWeatherImage(data.description, data.feels_like);
         });
 }
 
-// 초기 위치 설정
-const lat = 37.477550020716194;
-const lon = 126.98212524649105;
-fetchWeather(lat, lon);
+map.on('click', function(e) {
+    var coord = e.latlng;
+    fetchWeather(coord.lat, coord.lng);
+});
 
 document.querySelectorAll('.history-item').forEach(item => {
     item.addEventListener('click', function() {
@@ -83,4 +73,13 @@ document.querySelectorAll('.history-item').forEach(item => {
         const lon = this.getAttribute('data-lon');
         fetchWeather(lat, lon);
     });
+});
+
+// Click handler for recent search history items
+document.getElementById('history-list').addEventListener('click', function(e) {
+    if (e.target && e.target.matches('li.history-item')) {
+        const lat = e.target.getAttribute('data-lat');
+        const lon = e.target.getAttribute('data-lon');
+        fetchWeather(lat, lon);
+    }
 });
