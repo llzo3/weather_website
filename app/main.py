@@ -6,8 +6,11 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 import requests
 import datetime
+import os
 
-DATABASE_URL = "sqlite:///./weather.db"
+# 절대 경로로 데이터베이스 파일 설정
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATABASE_URL = f"sqlite:///{os.path.join(BASE_DIR, 'weather.db')}"
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -31,7 +34,13 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
 templates = Jinja2Templates(directory="app/templates")
-app.mount("/static", StaticFiles(directory="app/static"), name="static")
+
+# static 디렉토리가 존재하지 않으면 생성
+static_dir = os.path.join(BASE_DIR, 'static')
+if not os.path.exists(static_dir):
+    os.makedirs(static_dir)
+
+app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 API_KEY = "7984a6ee79bc96d84c6a09aaf4cdf934"
 
