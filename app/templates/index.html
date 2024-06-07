@@ -3,12 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <title>날씨 정보</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
             background-color: #f0f0f0;
             text-align: center;
             padding: 50px;
+        }
+        #map {
+            height: 600px;
+            width: 100%;
+            margin: 20px auto;
         }
         .weather-container {
             background-color: #fff;
@@ -24,48 +31,65 @@
         .weather-details {
             font-size: 18px;
         }
+        .history-container {
+            margin-top: 20px;
+        }
+        .history-item {
+            cursor: pointer;
+            color: blue;
+        }
     </style>
 </head>
 <body>
-    <div class="location-list">
-        <form action="/" method="get">
-            <label for="city">다른 지역도 볼래:</label>
-            <select name="city" id="city">
-                <option value="Seoul">서울</option>
-                <option value="Busan">부산</option>
-                <option value="Ulsan">울산</option>
-                <option value="Daegu">대구</option>
-                <option value="Incheon">인천</option>
-                <option value="Gwangju">광주</option>
-                <option value="Daejeon">대전</option>
-                <option value="Sejong">세종</option>
-                <option value="Seongnam">성남</option>
-                <option value="Jeju City">제주도</option>
-                <option value="Jeonju">전주</option>
-                <option value="Masan">마산</option>
-                <option value="Gangneung">강릉</option>
-                <option value="Seosan City">서산</option>
-                <option value="Gyeongju">경주</option>
-                <option value="Cheonan">천안</option>
-                <option value="Gunsan">군산</option>
-                <option value="Jinju">진주</option>
-                <option value="Suncheon">순천</option>
-                <option value="Ansan-si">안산</option>
-                <!-- 다른 지역 추가 -->
-            </select>
-            <button type="submit">선택</button>
-        </form>
+    <div id="map"></div>
+    <div class="weather-container" id="weather-container">
+        <div class="weather-header" id="weather-header">기상환경</div>
+        <div class="weather-details" id="weather-details"></div>
     </div>
-    
-    <div class="weather-container">
-        <div class="weather-header">{{ weather.city }}의 {{ weather.date }} 기상환경은?</div>
-        <div class="weather-details">
-            온도: {{ weather.temperature }}°C<br>
-            체감온도: {{ weather.feels_like }}°C<br>
-            최소온도: {{ weather.temp_min }}°C<br>
-            최대온도: {{ weather.temp_max }}°C<br>
-            기상환경: {{ weather.description }}
-        </div>
+    <div class="history-container">
+        <h3>최근 검색 기록</h3>
+        <ul id="history-list">
+            {% for record in records %}
+            <li class="history-item" data-lat="{{ record.lat }}" data-lon="{{ record.lon }}">
+                {{ record.city }} - {{ record.date.strftime('%Y년 %m월 %d일 %H시 %M분 %S초') }}
+            </li>
+            {% endfor %}
+        </ul>
     </div>
-</body>
-</html>
+    <script>
+        var map = L.map('map').setView([0, 0], 2);  // 전세계 지도로 초기 설정
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+        }).addTo(map);
+
+        function fetchWeather(lat, lon) {
+            fetch(`/weather?lat=${lat}&lon=${lon}`)
+                .then(response => response.json())
+                .then(data => {
+                    const container = document.getElementById('weather-container');
+                    const header = document.getElementById('weather-header');
+                    const details = document.getElementById('weather-details');
+                    
+                    header.textContent = `${data.city}의 ${data.date} 기상환경은?`;
+                    details.innerHTML = `
+                        온도: ${data.temperature}°C<br>
+                        체감온도: ${data.feels_like}°C<br>
+                        최소온도: ${data.temp_min}°C<br>
+                        최대온도: ${data.temp_max}°C<br>
+                        기상환경: ${data.description}
+                    `;
+                });
+        }
+
+        map.on('click', function(e) {
+            var coord = e.latlng;
+            fetchWeather(coord.lat, coord.lng);
+        });
+
+        document.querySelectorAll('.history-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const lat = this.getAttribute('data-lat');
+                const lon = this.getAttribute('data-lon');
+                fetchWeather(lat, lon);
+            });
+        });
