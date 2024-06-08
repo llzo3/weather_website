@@ -70,6 +70,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
             return 'warm.png';
         } else if (description.includes('선선함')) {
             return 'cool.png';
+        } else if (description.includes('추움')) { // 'cold' 추가
+            return 'cold.png';
         } else {
             return 'day.png';
         }
