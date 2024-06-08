@@ -1,5 +1,11 @@
 document.addEventListener('DOMContentLoaded', (event) => {
-    var map = L.map('map').setView([37.5665, 126.9780], 5);
+    var map = L.map('map', {
+        maxBounds: [
+            [-90, -180],
+            [90, 180]
+        ],
+        maxBoundsViscosity: 1.0
+    }).setView([37.5665, 126.9780], 5);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
