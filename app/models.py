@@ -1,6 +1,6 @@
 # app/models.py
 
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, Integer, String, DateTime, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 import datetime
 
@@ -11,9 +11,12 @@ class WeatherRecord(Base):
     
     id = Column(Integer, primary_key=True, index=True)
     city = Column(String, index=True)
-    date = Column(DateTime, default=datetime.datetime.utcnow)
-    temperature = Column(String)
-    feels_like = Column(String)
-    temp_min = Column(String)
-    temp_max = Column(String)
+    lat = Column(Float)
+    lon = Column(Float)
+    date = Column(DateTime)
+    temperature = Column(Float)
+    feels_like = Column(Float)
+    temp_min = Column(Float)
+    temp_max = Column(Float)
     description = Column(String)
+    is_favorite = Column(Boolean, default=False)

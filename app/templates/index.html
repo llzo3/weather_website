@@ -20,6 +20,17 @@
             {% for record in records %}
             <li class="history-item" data-lat="{{ record.lat }}" data-lon="{{ record.lon }}">
                 {{ record.city }} - {{ record.date.strftime('%Y년 %m월 %d일 %H시 %M분 %S초') }}
+                <button onclick="addToFavorites({{ record.lat }}, {{ record.lon }})">즐겨찾기 추가</button>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="favorites-container">
+        <h3>즐겨찾기</h3>
+        <ul id="favorites-list">
+            {% for favorite in favorites %}
+            <li class="favorite-item" data-lat="{{ favorite.lat }}" data-lon="{{ favorite.lon }}">
+                {{ favorite.city }}
             </li>
             {% endfor %}
         </ul>

@@ -1,41 +1,90 @@
-var map = L.map('map').setView([0, 0], 2);  // 전세계 지도로 초기 설정
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 18,
-}).addTo(map);
+// script.js
 
-function updateBackground(sunrise, sunset) {
-    const currentTime = new Date();
-    if (currentTime >= sunrise && currentTime < sunset) {
-        document.body.style.backgroundImage = "url('/static/images/day.jpg')";
-    } else {
-        document.body.style.backgroundImage = "url('/static/images/night.jpg')";
+document.addEventListener('DOMContentLoaded', (event) => {
+    var map = L.map('map').setView([37.5665, 126.9780], 5);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+    }).addTo(map);
+
+    function onMapClick(e) {
+        fetchWeather(e.latlng.lat, e.latlng.lng);
     }
-}
 
-function getWeatherImage(description, feels_like) {
-    if (description.includes("rain")) {
-        return "/static/images/rainy.png";
-    } else if (description.includes("snow")) {
-        return "/static/images/snowy.png";
-    } else {
-        if (feels_like > 30) {
-            return "/static/images/hot.png";
-        } else if (feels_like > 20) {
-            return "/static/images/warm.png";
-        } else if (feels_like > 10) {
-            return "/static/images/cool.png";
+    map.on('click', onMapClick);
+
+    document.querySelectorAll('.history-item').forEach(item => {
+        item.addEventListener('click', () => {
+            fetchWeather(item.dataset.lat, item.dataset.lon);
+        });
+    });
+
+    document.querySelectorAll('.favorite-item').forEach(item => {
+        item.addEventListener('click', () => {
+            fetchWeather(item.dataset.lat, item.dataset.lon);
+        });
+    });
+
+    function fetchWeather(lat, lon) {
+        fetch(`/weather?lat=${lat}&lon=${lon}`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('weather-header').textContent = `${data.city} 기상환경`;
+                document.getElementById('weather-details').innerHTML = `
+                    기온: ${data.temperature}°C<br>
+                    체감 온도: ${data.feels_like}°C<br>
+                    최저 기온: ${data.temp_min}°C<br>
+                    최고 기온: ${data.temp_max}°C<br>
+                    날씨 설명: ${data.description}<br>
+                    습도: ${data.humidity}%<br>
+                    풍속: ${data.wind_speed} m/s<br>
+                    기압: ${data.pressure} hPa<br>
+                    자외선 지수: ${data.uv_index}<br>
+                    일출: ${data.sunrise}<br>
+                    일몰: ${data.sunset}<br>
+                    현지 시간: ${data.date}<br>
+                    한국 시간: ${data.korea_time}<br>
+                    한국과의 시차: ${data.timezone_diff}시간
+                `;
+                document.getElementById('weather-img').src = `/static/images/${getImageForWeather(data.description)}`;
+                document.body.style.backgroundImage = getBackgroundImage();
+            });
+    }
+
+    function getImageForWeather(description) {
+        if (description.includes('clear')) {
+            return 'day.png';
+        } else if (description.includes('rain')) {
+            return 'rainy.png';
+        } else if (description.includes('snow')) {
+            return 'snowy.png';
+        } else if (description.includes('cloud')) {
+            return 'cloudy.png';
+        } else if (description.includes('hot')) {
+            return 'hot.png';
+        } else if (description.includes('warm')) {
+            return 'warm.png';
+        } else if (description.includes('cool')) {
+            return 'cool.png';
         } else {
-            return "/static/images/cold.png";
+            return 'day.png';
         }
     }
-}
 
-function fetchWeather(lat, lon) {
-    fetch(`/weather?lat=${lat}&lon=${lon}`)
-        .then(response => response.json())
-        .then(data => {
-            const header = document.getElementById('weather-header');
-            const details = document.getElementById('weather-details');
-            const weatherImg = document.getElementById('weather-img');
+    function getBackgroundImage() {
+        const hour = new Date().getHours();
+        if (hour >= 6 && hour < 18) {
+            return "url('/static/images/day.png')";
+        } else {
+            return "url('/static/images/night.png')";
+        }
+    }
 
-            header.textContent = `${data.city}의 ${data.date}
+    window.addToFavorites = function(lat, lon) {
+        fetch(`/favorites?lat=${lat}&lon=${lon}`, { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+            });
+    }
+});
