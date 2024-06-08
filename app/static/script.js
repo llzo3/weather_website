@@ -1,11 +1,11 @@
 document.addEventListener('DOMContentLoaded', (event) => {
     var map = L.map('map', {
         maxBounds: [
-            [-60, -180],
-            [60, 180]
+            [-80, -180],
+            [80, 180]
         ],
         maxBoundsViscosity: 1.0
-    }).setView([37.5665, 126.9780], 5);
+    }).setView([37.5665, 126.9780], 2);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
             return 'warm.png';
         } else if (description.includes('선선함')) {
             return 'cool.png';
-        } else if (description.includes('추움')) { // 'cold' 추가
+        } else if (description.includes('추움')) {
             return 'cold.png';
         } else {
             return 'day.png';
@@ -84,17 +84,4 @@ document.addEventListener('DOMContentLoaded', (event) => {
     function getBackgroundImage() {
         const hour = new Date().getHours();
         if (hour >= 6 && hour < 18) {
-            return "url('/static/images/day.png')";
-        } else {
-            return "url('/static/images/night.png')";
-        }
-    }
-
-    window.addToFavorites = function(lat, lon) {
-        fetch(`/favorites?lat=${lat}&lon=${lon}`, { method: 'POST' })
-            .then(response => response.json())
-            .then(data => {
-                alert(data.message);
-            });
-    }
-});
+            return "url('/static/images/day.png
