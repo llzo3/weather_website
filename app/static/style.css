@@ -36,4 +36,11 @@ body {
 .history-item {
   cursor: pointer;
   color: blue;
+  text-decoration: underline;
+}
+
+.favorite-item {
+  cursor: pointer;
+  color: blue;
+  text-decoration: underline;
 }
