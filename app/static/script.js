@@ -1,5 +1,3 @@
-// script.js
-
 document.addEventListener('DOMContentLoaded', (event) => {
     var map = L.map('map').setView([37.5665, 126.9780], 5);
 
