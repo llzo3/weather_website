@@ -10,7 +10,7 @@ import pytz
 import os
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./weather.db")
-API_KEY = os.getenv("OPENWEATHER_API_KEY", "your_openweather_api_key")
+API_KEY = os.getenv("OPENWEATHER_API_KEY", "7984a6ee79bc96d84c6a09aaf4cdf934")
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
