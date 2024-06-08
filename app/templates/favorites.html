@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>즐겨찾기</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="favorites-container">
+        <h3>즐겨찾기</h3>
+        <ul id="favorites-list">
+            {% for favorite in favorites %}
+            <li class="favorite-item" data-lat="{{ favorite.lat }}" data-lon="{{ favorite.lon }}">
+                {{ favorite.city }} - {{ favorite.date.strftime('%Y년 %m월 %d일 %H시 %M분 %S초') }}
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <script src="/static/script.js"></script>
+</body>
+</html>

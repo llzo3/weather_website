@@ -122,6 +122,11 @@ def add_to_favorites(lat: float, lon: float, db: Session = Depends(get_db)):
         return {"message": "Added to favorites"}
     return {"message": "Record not found"}
 
+@app.get("/favorites")
+def get_favorites(request: Request, db: Session = Depends(get_db)):
+    favorites = db.query(WeatherRecord).filter(WeatherRecord.is_favorite == True).all()
+    return templates.TemplateResponse("favorites.html", {"request": request, "favorites": favorites})
+
 @app.get("/history")
 def history(request: Request, db: Session = Depends(get_db)):
     records = db.query(WeatherRecord).order_by(WeatherRecord.id.desc()).all()
