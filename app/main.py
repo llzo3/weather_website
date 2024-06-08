@@ -10,7 +10,7 @@ import pytz
 import os
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./weather.db")
-API_KEY = os.getenv("OPENWEATHER_API_KEY", "7984a6ee79bc96d84c6a09aaf4cdf934")
+API_KEY = os.getenv("OPENWEATHER_API_KEY", "your_openweather_api_key")
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -61,7 +61,6 @@ def get_weather_by_coords(lat: float, lon: float, db: Session = Depends(get_db))
 
         current = data["current"]
         hourly = data["hourly"]
-        daily = data["daily"]
 
         local_time = datetime.datetime.utcfromtimestamp(current["dt"] + timezone_offset).strftime("%Y년 %m월 %d일 %H시 %M분 %S초")
         korea_time = datetime.datetime.now(pytz.timezone("Asia/Seoul")).strftime("%Y년 %m월 %d일 %H시 %M분 %S초")
@@ -73,13 +72,21 @@ def get_weather_by_coords(lat: float, lon: float, db: Session = Depends(get_db))
 
         timezone_diff = (timezone_offset - korea_offset) // 3600
 
+        three_hour_forecast = [
+            {
+                "time": datetime.datetime.utcfromtimestamp(hour["dt"] + timezone_offset).strftime("%H:%M"),
+                "temperature": hour["temp"],
+                "description": hour["weather"][0]["description"]
+            } for hour in hourly if datetime.datetime.utcfromtimestamp(hour["dt"]).hour % 3 == 0
+        ]
+
         weather_data = {
             "city": "Selected Location",
             "current": {
                 "temperature": current["temp"],
                 "feels_like": current["feels_like"],
-                "temp_min": daily[0]["temp"]["min"],
-                "temp_max": daily[0]["temp"]["max"],
+                "temp_min": hourly[0]["temp"],
+                "temp_max": hourly[0]["temp"],
                 "description": current["weather"][0]["description"],
                 "humidity": current["humidity"],
                 "wind_speed": current["wind_speed"],
@@ -92,20 +99,7 @@ def get_weather_by_coords(lat: float, lon: float, db: Session = Depends(get_db))
                 "timezone_diff": timezone_diff,
                 "is_day": current["dt"] >= current["sunrise"] and current["dt"] <= current["sunset"]
             },
-            "hourly": [
-                {
-                    "time": datetime.datetime.utcfromtimestamp(hour["dt"] + timezone_offset).strftime("%H:%M"),
-                    "temperature": hour["temp"],
-                    "description": hour["weather"][0]["description"]
-                } for hour in hourly[:24]
-            ],
-            "daily": [
-                {
-                    "date": datetime.datetime.utcfromtimestamp(day["dt"] + timezone_offset).strftime("%m/%d"),
-                    "temperature": day["temp"],
-                    "description": day["weather"][0]["description"]
-                } for day in daily
-            ]
+            "three_hour_forecast": three_hour_forecast
         }
 
         record = db.query(WeatherRecord).filter(WeatherRecord.lat == lat, WeatherRecord.lon == lon).first()

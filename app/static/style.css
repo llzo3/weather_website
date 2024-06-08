@@ -18,6 +18,7 @@ body {
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   display: inline-block;
+  margin-bottom: 20px;
 }
 
 .weather-header {
@@ -27,31 +28,28 @@ body {
 
 .weather-details {
   font-size: 18px;
+  text-align: left;
 }
 
-.history-container {
+.history-container,
+.favorites-container {
   margin-top: 20px;
 }
 
-.history-item {
-  cursor: pointer;
-  color: blue;
-  text-decoration: underline;
-}
-
+.history-item,
 .favorite-item {
   cursor: pointer;
   color: blue;
   text-decoration: underline;
 }
 
-.hourly, .daily {
+.three-hour {
   display: flex;
   justify-content: space-between;
   margin-bottom: 10px;
 }
 
-.hourly div, .daily div {
+.three-hour div {
   flex: 1;
   text-align: center;
 }
