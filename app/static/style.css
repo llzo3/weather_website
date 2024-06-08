@@ -1,9 +1,9 @@
 /* Add your CSS styling here */
 body {
   font-family: Arial, sans-serif;
-  background-color: #f0f0f0;
   text-align: center;
   padding: 50px;
+  transition: background-image 0.5s ease-in-out;
 }
 
 #map {
@@ -43,4 +43,15 @@ body {
   cursor: pointer;
   color: blue;
   text-decoration: underline;
+}
+
+.hourly, .daily {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.hourly div, .daily div {
+  flex: 1;
+  text-align: center;
 }
