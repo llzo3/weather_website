@@ -1,8 +1,8 @@
 document.addEventListener('DOMContentLoaded', (event) => {
     var map = L.map('map', {
         maxBounds: [
-            [-80, -180],
-            [80, 180]
+            [-85, -180],
+            [85, 180]
         ],
         maxBoundsViscosity: 1.0
     }).setView([37.5665, 126.9780], 2);
@@ -84,4 +84,17 @@ document.addEventListener('DOMContentLoaded', (event) => {
     function getBackgroundImage() {
         const hour = new Date().getHours();
         if (hour >= 6 && hour < 18) {
-            return "url('/static/images/day.png
+            return "url('/static/images/day.png')";
+        } else {
+            return "url('/static/images/night.png')";
+        }
+    }
+
+    window.addToFavorites = function(lat, lon) {
+        fetch(`/favorites?lat=${lat}&lon=${lon}`, { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+            });
+    }
+});
