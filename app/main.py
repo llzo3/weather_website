@@ -46,7 +46,7 @@ def get_db():
 
 @app.get("/")
 def root(request: Request, db: Session = Depends(get_db)):
-    records = db.query(WeatherRecord).order_by(WeatherRecord.id.desc()).limit(5).all()
+    records = db.query(WeatherRecord).order_by(WeatherRecord.date.desc()).limit(5).all()
     favorites = db.query(WeatherRecord).filter(WeatherRecord.is_favorite == True).all()
     return templates.TemplateResponse("index.html", {"request": request, "records": records, "favorites": favorites})
 
@@ -84,18 +84,29 @@ def get_weather_by_coords(lat: float, lon: float, db: Session = Depends(get_db))
             "timezone_diff": timezone // 3600
         }
 
-        weather_record = WeatherRecord(
-            city=weather_data["city"],
-            lat=lat,
-            lon=lon,
-            date=datetime.datetime.now(tz),
-            temperature=weather_data["temperature"],
-            feels_like=weather_data["feels_like"],
-            temp_min=weather_data["temp_min"],
-            temp_max=weather_data["temp_max"],
-            description=weather_data["description"]
-        )
-        db.add(weather_record)
+        # 기존에 같은 위치 기록이 있으면 업데이트, 없으면 추가
+        record = db.query(WeatherRecord).filter(WeatherRecord.lat == lat, WeatherRecord.lon == lon).first()
+        if record:
+            record.city = weather_data["city"]
+            record.date = datetime.datetime.now(tz)
+            record.temperature = weather_data["temperature"]
+            record.feels_like = weather_data["feels_like"]
+            record.temp_min = weather_data["temp_min"]
+            record.temp_max = weather_data["temp_max"]
+            record.description = weather_data["description"]
+        else:
+            weather_record = WeatherRecord(
+                city=weather_data["city"],
+                lat=lat,
+                lon=lon,
+                date=datetime.datetime.now(tz),
+                temperature=weather_data["temperature"],
+                feels_like=weather_data["feels_like"],
+                temp_min=weather_data["temp_min"],
+                temp_max=weather_data["temp_max"],
+                description=weather_data["description"]
+            )
+            db.add(weather_record)
         db.commit()
 
         return weather_data
