@@ -50,6 +50,14 @@ def root(request: Request, db: Session = Depends(get_db)):
     favorites = db.query(WeatherRecord).filter(WeatherRecord.is_favorite == True).all()
     return templates.TemplateResponse("index.html", {"request": request, "records": records, "favorites": favorites})
 
+def get_timezone_from_offset(offset):
+    if offset == 0:
+        return 'Etc/GMT'
+    elif offset > 0:
+        return f'Etc/GMT+{abs(offset // 3600)}'
+    else:
+        return f'Etc/GMT-{abs(offset // 3600)}'
+    
 @app.get("/weather")
 def get_weather_by_coords(lat: float, lon: float, db: Session = Depends(get_db)):
     URL = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API_KEY}&units=metric&lang=kr"
@@ -59,7 +67,8 @@ def get_weather_by_coords(lat: float, lon: float, db: Session = Depends(get_db))
         data = response.json()
         timezone = data["timezone"]
 
-        tz = pytz.timezone("Etc/GMT" + str(timezone // 3600))
+        tz_name = get_timezone_from_offset(timezone)
+        tz = pytz.timezone(tz_name)
         local_time = datetime.datetime.now(tz).strftime("%Y년 %m월 %d일 %H시 %M분 %S초")
         korea_time = datetime.datetime.now(pytz.timezone("Asia/Seoul")).strftime("%Y년 %m월 %d일 %H시 %M분 %S초")
 
@@ -100,18 +109,3 @@ def get_weather_by_coords(lat: float, lon: float, db: Session = Depends(get_db))
         return weather_data
     else:
         return {"message": "Failed to fetch weather data"}
-
-@app.post("/favorites")
-def add_to_favorites(lat: float, lon: float, db: Session = Depends(get_db)):
-    record = db.query(WeatherRecord).filter(WeatherRecord.lat == lat, WeatherRecord.lon == lon).first()
-    if record:
-        record.is_favorite = True
-        db.commit()
-        return {"message": "Added to favorites"}
-    return {"message": "Record not found"}
-
-@app.get("/history")
-def history(request: Request, db: Session = Depends(get_db)):
-    records = db.query(WeatherRecord).order_by(WeatherRecord.id.desc()).all()
-    return templates.TemplateResponse("history.html", {"request": request, "records": records})
-

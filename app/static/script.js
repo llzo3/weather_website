@@ -47,24 +47,28 @@ document.addEventListener('DOMContentLoaded', (event) => {
                     한국과의 시차: ${data.timezone_diff}시간
                 `;
                 document.getElementById('weather-img').src = `/static/images/${getImageForWeather(data.description)}`;
+                document.getElementById('weather-img').alt = data.description; // alt 속성 설정
                 document.body.style.backgroundImage = getBackgroundImage();
+            })
+            .catch(error => {
+                console.error('Error fetching weather data:', error);
             });
     }
 
     function getImageForWeather(description) {
-        if (description.includes('clear')) {
+        if (description.includes('맑음')) {
             return 'day.png';
-        } else if (description.includes('rain')) {
+        } else if (description.includes('비')) {
             return 'rainy.png';
-        } else if (description.includes('snow')) {
+        } else if (description.includes('눈')) {
             return 'snowy.png';
-        } else if (description.includes('cloud')) {
+        } else if (description.includes('구름')) {
             return 'cloudy.png';
-        } else if (description.includes('hot')) {
+        } else if (description.includes('더움')) {
             return 'hot.png';
-        } else if (description.includes('warm')) {
+        } else if (description.includes('따뜻함')) {
             return 'warm.png';
-        } else if (description.includes('cool')) {
+        } else if (description.includes('선선함')) {
             return 'cool.png';
         } else {
             return 'day.png';
