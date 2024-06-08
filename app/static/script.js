@@ -1,8 +1,8 @@
 document.addEventListener('DOMContentLoaded', (event) => {
     var map = L.map('map', {
         maxBounds: [
-            [-90, -180],
-            [90, 180]
+            [-60, -180],
+            [60, 180]
         ],
         maxBoundsViscosity: 1.0
     }).setView([37.5665, 126.9780], 5);
