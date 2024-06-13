@@ -52,76 +52,66 @@ def root(request: Request, db: Session = Depends(get_db)):
 
 @app.get("/weather")
 def get_weather_by_coords(lat: float, lon: float, db: Session = Depends(get_db)):
-    URL = f"https://api.openweathermap.org/data/2.5/onecall?lat={lat}&lon={lon}&exclude=minutely,alerts&appid={API_KEY}&units=metric&lang=kr"
+    URL = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API_KEY}&units=metric&lang=kr"
     response = requests.get(URL)
 
     if response.status_code == 200:
         data = response.json()
-        timezone_offset = data["timezone_offset"]
+        timezone_offset = data["timezone"]
 
-        current = data["current"]
-        hourly = data["hourly"]
-
-        local_time = datetime.datetime.utcfromtimestamp(current["dt"] + timezone_offset).strftime("%Y년 %m월 %d일 %H시 %M분 %S초")
+        local_time = datetime.datetime.utcfromtimestamp(data["dt"] + timezone_offset).strftime("%Y년 %m월 %d일 %H시 %M분 %S초")
         korea_time = datetime.datetime.now(pytz.timezone("Asia/Seoul")).strftime("%Y년 %m월 %d일 %H시 %M분 %S초")
 
-        sunrise_time = datetime.datetime.utcfromtimestamp(current["sunrise"] + timezone_offset).strftime("%H:%M:%S")
-        sunset_time = datetime.datetime.utcfromtimestamp(current["sunset"] + timezone_offset).strftime("%H:%M:%S")
+        sunrise_time = datetime.datetime.utcfromtimestamp(data["sys"]["sunrise"] + timezone_offset).strftime("%H:%M:%S")
+        sunset_time = datetime.datetime.utcfromtimestamp(data["sys"]["sunset"] + timezone_offset).strftime("%H:%M:%S")
 
-        korea_offset = 9 * 3600
+        # 한국 시간대 오프셋 (Asia/Seoul)
+        korea_offset = 9 * 3600  # 9시간을 초 단위로 변환
 
+        # 시차 계산
         timezone_diff = (timezone_offset - korea_offset) // 3600
 
-        three_hour_forecast = [
-            {
-                "time": datetime.datetime.utcfromtimestamp(hour["dt"] + timezone_offset).strftime("%H:%M"),
-                "temperature": hour["temp"],
-                "description": hour["weather"][0]["description"]
-            } for hour in hourly if datetime.datetime.utcfromtimestamp(hour["dt"]).hour % 3 == 0
-        ]
-
         weather_data = {
-            "city": "Selected Location",
-            "current": {
-                "temperature": current["temp"],
-                "feels_like": current["feels_like"],
-                "temp_min": hourly[0]["temp"],
-                "temp_max": hourly[0]["temp"],
-                "description": current["weather"][0]["description"],
-                "humidity": current["humidity"],
-                "wind_speed": current["wind_speed"],
-                "pressure": current["pressure"],
-                "uv_index": current["uvi"],
-                "sunrise": sunrise_time,
-                "sunset": sunset_time,
-                "date": local_time,
-                "korea_time": korea_time,
-                "timezone_diff": timezone_diff,
-                "is_day": current["dt"] >= current["sunrise"] and current["dt"] <= current["sunset"]
-            },
-            "three_hour_forecast": three_hour_forecast
+            "city": data["name"],
+            "lat": lat,
+            "lon": lon,
+            "date": local_time,
+            "temperature": data["main"]["temp"],
+            "feels_like": data["main"]["feels_like"],
+            "temp_min": data["main"]["temp_min"],
+            "temp_max": data["main"]["temp_max"],
+            "description": data["weather"][0]["description"],
+            "humidity": data["main"]["humidity"],
+            "wind_speed": data["wind"]["speed"],
+            "pressure": data["main"]["pressure"],
+            "uv_index": data.get("uvi", "N/A"),
+            "sunrise": sunrise_time,
+            "sunset": sunset_time,
+            "korea_time": korea_time,
+            "timezone_diff": timezone_diff
         }
 
+        # 기존에 같은 위치 기록이 있으면 업데이트, 없으면 추가
         record = db.query(WeatherRecord).filter(WeatherRecord.lat == lat, WeatherRecord.lon == lon).first()
         if record:
             record.city = weather_data["city"]
             record.date = datetime.datetime.now(pytz.utc)
-            record.temperature = weather_data["current"]["temperature"]
-            record.feels_like = weather_data["current"]["feels_like"]
-            record.temp_min = weather_data["current"]["temp_min"]
-            record.temp_max = weather_data["current"]["temp_max"]
-            record.description = weather_data["current"]["description"]
+            record.temperature = weather_data["temperature"]
+            record.feels_like = weather_data["feels_like"]
+            record.temp_min = weather_data["temp_min"]
+            record.temp_max = weather_data["temp_max"]
+            record.description = weather_data["description"]
         else:
             weather_record = WeatherRecord(
                 city=weather_data["city"],
                 lat=lat,
                 lon=lon,
                 date=datetime.datetime.now(pytz.utc),
-                temperature=weather_data["current"]["temperature"],
-                feels_like=weather_data["current"]["feels_like"],
-                temp_min=weather_data["current"]["temp_min"],
-                temp_max=weather_data["current"]["temp_max"],
-                description=weather_data["current"]["description"]
+                temperature=weather_data["temperature"],
+                feels_like=weather_data["feels_like"],
+                temp_min=weather_data["temp_min"],
+                temp_max=weather_data["temp_max"],
+                description=weather_data["description"]
             )
             db.add(weather_record)
         db.commit()

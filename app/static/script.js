@@ -36,29 +36,24 @@ document.addEventListener('DOMContentLoaded', (event) => {
             .then(data => {
                 document.getElementById('weather-header').textContent = `${data.city} 기상환경`;
                 document.getElementById('weather-details').innerHTML = `
-                    기온: ${data.current.temperature}°C<br>
-                    체감 온도: ${data.current.feels_like}°C<br>
-                    최저 기온: ${data.current.temp_min}°C<br>
-                    최고 기온: ${data.current.temp_max}°C<br>
-                    날씨 설명: ${data.current.description}<br>
-                    습도: ${data.current.humidity}%<br>
-                    풍속: ${data.current.wind_speed} m/s<br>
-                    기압: ${data.current.pressure} hPa<br>
-                    자외선 지수: ${data.current.uv_index}<br>
-                    일출: ${data.current.sunrise}<br>
-                    일몰: ${data.current.sunset}<br>
-                    현지 시간: ${data.current.date}<br>
-                    한국 시간: ${data.current.korea_time}<br>
-                    한국과의 시차: ${data.current.timezone_diff}시간
+                    기온: ${data.temperature}°C<br>
+                    체감 온도: ${data.feels_like}°C<br>
+                    최저 기온: ${data.temp_min}°C<br>
+                    최고 기온: ${data.temp_max}°C<br>
+                    날씨 설명: ${data.description}<br>
+                    습도: ${data.humidity}%<br>
+                    풍속: ${data.wind_speed} m/s<br>
+                    기압: ${data.pressure} hPa<br>
+                    자외선 지수: ${data.uv_index}<br>
+                    일출: ${data.sunrise}<br>
+                    일몰: ${data.sunset}<br>
+                    현지 시간: ${data.date}<br>
+                    한국 시간: ${data.korea_time}<br>
+                    한국과의 시차: ${data.timezone_diff}시간
                 `;
-                document.getElementById('three-hour-forecast').innerHTML = data.three_hour_forecast.map(forecast => `
-                    <div class="three-hour">
-                        <div>${forecast.time}</div>
-                        <div>${forecast.temperature}°C</div>
-                        <div>${forecast.description}</div>
-                    </div>
-                `).join('');
-                document.body.style.backgroundImage = getBackgroundImage(data.current.is_day);
+                document.getElementById('weather-img').src = `/static/images/${getImageForWeather(data.description)}`;
+                document.getElementById('weather-img').alt = data.description; // alt 속성 설정
+                document.body.style.backgroundImage = getBackgroundImage();
             })
             .catch(error => {
                 console.error('Error fetching weather data:', error);
@@ -87,11 +82,12 @@ document.addEventListener('DOMContentLoaded', (event) => {
         }
     }
 
-    function getBackgroundImage(is_day) {
-        if (is_day) {
-            return "linear-gradient(to bottom, #87CEEB, #ffffff)";
+    function getBackgroundImage() {
+        const hour = new Date().getHours();
+        if (hour >= 6 && hour < 18) {
+            return "url('/static/images/day.png')";
         } else {
-            return "linear-gradient(to bottom, #2c3e50, #bdc3c7)";
+            return "url('/static/images/night.png')";
         }
     }
 
