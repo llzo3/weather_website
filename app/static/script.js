@@ -44,6 +44,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
                     습도: ${data.humidity}%<br>
                     풍속: ${data.wind_speed} m/s<br>
                     기압: ${data.pressure} hPa<br>
+                    강수량: ${data.rain} mm<br>
                     자외선 지수: ${data.uv_index}<br>
                     일출: ${data.sunrise}<br>
                     일몰: ${data.sunset}<br>
@@ -52,7 +53,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
                     한국과의 시차: ${data.timezone_diff}시간
                 `;
                 document.getElementById('weather-img').src = `/static/images/${getImageForWeather(data.description)}`;
-                document.getElementById('weather-img').alt = data.description; // alt 속성 설정
+                document.getElementById('weather-img').alt = data.description;
                 document.body.style.backgroundImage = getBackgroundImage();
 
                 let forecastHTML = '';
@@ -115,15 +116,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
             .then(response => response.json())
             .then(data => {
                 alert(data.message);
-            });
-    }
-
-    window.removeFromFavorites = function(lat, lon) {
-        fetch(`/favorites?lat=${lat}&lon=${lon}`, { method: 'DELETE' })
-            .then(response => response.json())
-            .then(data => {
-                alert(data.message);
-                location.reload(); // 즐겨찾기 목록 새로고침
             });
     }
 });

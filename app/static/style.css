@@ -1,3 +1,4 @@
+/* Add your CSS styling here */
 body {
   font-family: Arial, sans-serif;
   text-align: center;
@@ -32,16 +33,13 @@ body {
 
 .history-container,
 .favorites-container {
-  position: fixed;
-  top: 10px;
-  right: 10px;
-  background-color: rgba(255, 255, 255, 0.9);
-  padding: 10px;
-  border-radius: 5px;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  display: inline-block;
+  margin-bottom: 20px;
   margin-top: 20px;
-  z-index: 1000;
-  width: 300px;
 }
 
 .history-item,
@@ -49,17 +47,19 @@ body {
   cursor: pointer;
   color: blue;
   text-decoration: underline;
-  display: flex;
-  justify-content: space-between;
 }
 
-.history-item button,
-.favorite-item button {
-  margin-left: 10px;
-  background-color: red;
-  color: white;
-  border: none;
-  padding: 5px;
-  border-radius: 5px;
-  cursor: pointer;
+.forecast-container {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  display: inline-block;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.forecast-item {
+  margin-bottom: 15px;
+  text-align: left;
 }

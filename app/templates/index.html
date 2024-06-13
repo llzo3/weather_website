@@ -14,6 +14,10 @@
         <div class="weather-details" id="weather-details"></div>
         <img id="weather-img" src="" alt="Weather Image">
     </div>
+    <div class="forecast-container" id="forecast-container">
+        <h3>미래 날씨 예보</h3>
+        <div id="forecast-details"></div>
+    </div>
     <div class="history-container">
         <h3>최근 검색 기록</h3>
         <ul id="history-list">
@@ -31,7 +35,6 @@
             {% for favorite in favorites %}
             <li class="favorite-item" data-lat="{{ favorite.lat }}" data-lon="{{ favorite.lon }}">
                 {{ favorite.city }}
-                <button onclick="removeFromFavorites({{ favorite.lat }}, {{ favorite.lon }})">삭제</button>
             </li>
             {% endfor %}
         </ul>
