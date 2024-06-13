@@ -45,37 +45,41 @@ def get_db():
         db.close()
 
 def translate_weather_description(description):
-    if description == "clear sky":
-        return "맑음"
-    elif description == "few clouds":
-        return "구름 조금"
-    elif description == "scattered clouds":
-        return "구름 약간"
-    elif description == "broken clouds" or description == "overcast clouds":
-        return "흐림"
-    elif description == "shower rain":
-        return "소나기"
-    elif description == "rain" or description == "light rain" or description == "moderate rain" or description == "heavy intensity rain" or description == "very heavy rain" or description == "extreme rain" or description == "freezing rain":
-        return "비"
-    elif description == "thunderstorm":
-        return "뇌우"
-    elif description == "snow" or description == "light snow" or description == "heavy snow" or description == "sleet" or description == "shower sleet" or description == "light rain and snow" or description == "rain and snow" or description == "light shower snow" or description == "shower snow" or description == "heavy shower snow":
-        return "눈"
-    elif description == "mist" or description == "fog" or description == "haze":
-        return "안개"
-    elif description == "sand":
-        return "모래"
-    elif description == "dust":
-        return "먼지"
-    elif description == "volcanic ash":
-        return "화산재"
-    elif description == "squalls":
-        return "돌풍"
-    elif description == "tornado":
-        return "토네이도"
-    else:
-        return description
-
+    translations = {
+        "clear sky": "맑음",
+        "few clouds": "구름 조금",
+        "scattered clouds": "구름 약간",
+        "broken clouds": "구름 많음",
+        "overcast clouds": "흐림",
+        "shower rain": "소나기",
+        "rain": "비",
+        "light rain": "가벼운 비",
+        "moderate rain": "보통 비",
+        "heavy intensity rain": "강한 비",
+        "very heavy rain": "매우 강한 비",
+        "extreme rain": "극심한 비",
+        "freezing rain": "어는 비",
+        "thunderstorm": "뇌우",
+        "snow": "눈",
+        "light snow": "가벼운 눈",
+        "heavy snow": "강한 눈",
+        "sleet": "진눈깨비",
+        "shower sleet": "소나기 진눈깨비",
+        "light rain and snow": "가벼운 비와 눈",
+        "rain and snow": "비와 눈",
+        "light shower snow": "가벼운 소나기 눈",
+        "shower snow": "소나기 눈",
+        "heavy shower snow": "강한 소나기 눈",
+        "mist": "안개",
+        "fog": "안개",
+        "haze": "실안개",
+        "sand": "모래",
+        "dust": "먼지",
+        "volcanic ash": "화산재",
+        "squalls": "돌풍",
+        "tornado": "토네이도"
+    }
+    return translations.get(description, description)
 
 @app.get("/")
 def root(request: Request, db: Session = Depends(get_db)):
@@ -168,7 +172,6 @@ def get_weather_by_coords(lat: float, lon: float, db: Session = Depends(get_db))
         return weather_data
     else:
         return {"message": "Failed to fetch weather data"}
-
 
 @app.post("/favorites")
 def add_to_favorites(lat: float, lon: float, db: Session = Depends(get_db)):
