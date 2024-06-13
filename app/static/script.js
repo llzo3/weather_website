@@ -56,23 +56,32 @@ document.addEventListener('DOMContentLoaded', (event) => {
                 document.getElementById('weather-img').alt = data.description;
                 document.body.style.backgroundImage = getBackgroundImage();
 
-                let forecastHTML = '';
+                let forecastHTML = '<table><tr><th>날짜</th><th>시간</th><th>기온</th><th>체감 온도</th><th>최저 기온</th><th>최고 기온</th><th>날씨 설명</th><th>습도</th><th>풍속</th><th>강수량</th><th>강수 확률</th></tr>';
+                let currentDate = '';
                 data.forecast.forEach(item => {
+                    let date = item.date.split(' ')[0];
+                    let time = item.date.split(' ')[1];
+                    if (currentDate !== date) {
+                        currentDate = date;
+                        forecastHTML += `<tr><td colspan="11" class="date-row">${date}</td></tr>`;
+                    }
                     forecastHTML += `
-                        <div class="forecast-item">
-                            날짜: ${item.date}<br>
-                            기온: ${item.temperature}°C<br>
-                            체감 온도: ${item.feels_like}°C<br>
-                            최저 기온: ${item.temp_min}°C<br>
-                            최고 기온: ${item.temp_max}°C<br>
-                            날씨 설명: ${item.description}<br>
-                            습도: ${item.humidity}%<br>
-                            풍속: ${item.wind_speed} m/s<br>
-                            강수량: ${item.rain} mm<br>
-                            강수 확률: ${item.pop}%
-                        </div>
+                        <tr>
+                            <td>${date}</td>
+                            <td>${time}</td>
+                            <td>${item.temperature}°C</td>
+                            <td>${item.feels_like}°C</td>
+                            <td>${item.temp_min}°C</td>
+                            <td>${item.temp_max}°C</td>
+                            <td>${item.description}</td>
+                            <td>${item.humidity}%</td>
+                            <td>${item.wind_speed} m/s</td>
+                            <td>${item.rain} mm</td>
+                            <td>${item.pop}%</td>
+                        </tr>
                     `;
                 });
+                forecastHTML += '</table>';
                 document.getElementById('forecast-details').innerHTML = forecastHTML;
             })
             .catch(error => {
