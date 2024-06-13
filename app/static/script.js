@@ -118,4 +118,13 @@ document.addEventListener('DOMContentLoaded', (event) => {
                 alert(data.message);
             });
     }
+
+    window.removeFromFavorites = function(lat, lon) {
+        fetch(`/favorites?lat=${lat}&lon=${lon}`, { method: 'DELETE' })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                location.reload();
+            });
+    }
 });

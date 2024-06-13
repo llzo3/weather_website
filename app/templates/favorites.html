@@ -12,6 +12,7 @@
             {% for favorite in favorites %}
             <li class="favorite-item" data-lat="{{ favorite.lat }}" data-lon="{{ favorite.lon }}">
                 {{ favorite.city }} - {{ favorite.date.strftime('%Y년 %m월 %d일 %H시 %M분 %S초') }}
+                <button onclick="removeFromFavorites({{ favorite.lat }}, {{ favorite.lon }})">삭제</button>
             </li>
             {% endfor %}
         </ul>

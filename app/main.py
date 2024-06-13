@@ -179,8 +179,17 @@ def add_to_favorites(lat: float, lon: float, db: Session = Depends(get_db)):
     if record:
         record.is_favorite = True
         db.commit()
-        return {"message": "Added to favorites"}
-    return {"message": "Record not found"}
+        return {"message": "즐겨찾기에 추가되었습니다."}
+    return {"message": "기록을 찾을 수 없습니다."}
+
+@app.delete("/favorites")
+def remove_from_favorites(lat: float, lon: float, db: Session = Depends(get_db)):
+    record = db.query(WeatherRecord).filter(WeatherRecord.lat == lat, WeatherRecord.lon == lon).first()
+    if record:
+        record.is_favorite = False
+        db.commit()
+        return {"message": "즐겨찾기에서 삭제되었습니다."}
+    return {"message": "기록을 찾을 수 없습니다."}
 
 @app.get("/favorites")
 def get_favorites(request: Request, db: Session = Depends(get_db)):
