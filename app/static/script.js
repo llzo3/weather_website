@@ -44,6 +44,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
                     습도: ${data.humidity}%<br>
                     풍속: ${data.wind_speed} m/s<br>
                     기압: ${data.pressure} hPa<br>
+                    강수량: ${data.rain} mm<br>
                     자외선 지수: ${data.uv_index}<br>
                     일출: ${data.sunrise}<br>
                     일몰: ${data.sunset}<br>
@@ -67,7 +68,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
                             날씨 설명: ${item.description}<br>
                             습도: ${item.humidity}%<br>
                             풍속: ${item.wind_speed} m/s<br>
-                            기압: ${item.pressure} hPa<br>
+                            강수량: ${item.rain} mm<br>
+                            강수 확률: ${item.pop}%
                         </div>
                     `;
                 });

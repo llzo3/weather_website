@@ -44,6 +44,28 @@ def get_db():
     finally:
         db.close()
 
+def translate_weather_description(description):
+    if description == "clear sky":
+        return "맑음"
+    elif description == "few clouds":
+        return "구름 조금"
+    elif description == "scattered clouds":
+        return "구름 낌"
+    elif description == "broken clouds":
+        return "구름 많음"
+    elif description == "shower rain":
+        return "소나기"
+    elif description == "rain":
+        return "비"
+    elif description == "thunderstorm":
+        return "폭우"
+    elif description == "snow":
+        return "눈"
+    elif description == "mist":
+        return "안개"
+    else:
+        return description
+
 @app.get("/")
 def root(request: Request, db: Session = Depends(get_db)):
     records = db.query(WeatherRecord).order_by(WeatherRecord.date.desc()).limit(5).all()
@@ -70,6 +92,8 @@ def get_weather_by_coords(lat: float, lon: float, db: Session = Depends(get_db))
         korea_offset = 9 * 3600
         timezone_diff = (timezone_offset - korea_offset) // 3600
 
+        weather_description = translate_weather_description(current_data["weather"][0]["description"])
+
         weather_data = {
             "city": current_data["name"],
             "lat": lat,
@@ -79,11 +103,12 @@ def get_weather_by_coords(lat: float, lon: float, db: Session = Depends(get_db))
             "feels_like": current_data["main"]["feels_like"],
             "temp_min": current_data["main"]["temp_min"],
             "temp_max": current_data["main"]["temp_max"],
-            "description": current_data["weather"][0]["description"],
+            "description": weather_description,
             "humidity": current_data["main"]["humidity"],
             "wind_speed": current_data["wind"]["speed"],
             "pressure": current_data["main"]["pressure"],
             "uv_index": current_data.get("uvi", "N/A"),
+            "rain": current_data.get("rain", {}).get("1h", 0),
             "sunrise": sunrise_time,
             "sunset": sunset_time,
             "korea_time": korea_time,
@@ -95,10 +120,11 @@ def get_weather_by_coords(lat: float, lon: float, db: Session = Depends(get_db))
                     "feels_like": item["main"]["feels_like"],
                     "temp_min": item["main"]["temp_min"],
                     "temp_max": item["main"]["temp_max"],
-                    "description": item["weather"][0]["description"],
+                    "description": translate_weather_description(item["weather"][0]["description"]),
                     "humidity": item["main"]["humidity"],
                     "wind_speed": item["wind"]["speed"],
-                    "pressure": item["main"]["pressure"]
+                    "rain": item.get("rain", {}).get("3h", 0),
+                    "pop": item.get("pop", 0) * 100
                 }
                 for item in forecast_data["list"]
             ]
@@ -131,6 +157,7 @@ def get_weather_by_coords(lat: float, lon: float, db: Session = Depends(get_db))
         return weather_data
     else:
         return {"message": "Failed to fetch weather data"}
+
 
 @app.post("/favorites")
 def add_to_favorites(lat: float, lon: float, db: Session = Depends(get_db)):
