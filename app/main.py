@@ -79,7 +79,8 @@ def translate_weather_description(description):
         "squalls": "돌풍",
         "tornado": "토네이도",
         "튼구름": "구름 많음",  # 잘못된 번역 수정
-        "실 비": "가벼운 비"   # 잘못된 번역 수정
+        "실 비": "가벼운 비",  # 잘못된 번역 수정
+        "온흐림": "흐림"       # "온흐림" 번역 추가
     }
     return translations.get(description, description)
 
@@ -200,7 +201,7 @@ def get_favorites(request: Request, db: Session = Depends(get_db)):
 
 @app.get("/history")
 def history(request: Request, db: Session = Depends(get_db)):
-    records = db.query(WeatherRecord).order_by(WeatherRecord.id.desc()).all()
+    records = db.query(WeatherRecord). order_by(WeatherRecord.id.desc()).all()
     return templates.TemplateResponse("history.html", {"request": request, "records": records})
 
 def get_timezone_from_offset(offset):
