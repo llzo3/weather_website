@@ -43,14 +43,14 @@ def get_db():
         yield db
     finally:
         db.close()
-
+        
 def translate_weather_description(description):
     if description == "clear sky":
         return "맑음"
     elif description == "few clouds":
         return "구름 조금"
     elif description == "scattered clouds":
-        return "구름 낌"
+        return "구름 약간"
     elif description == "broken clouds":
         return "구름 많음"
     elif description == "shower rain":
@@ -58,13 +58,58 @@ def translate_weather_description(description):
     elif description == "rain":
         return "비"
     elif description == "thunderstorm":
-        return "폭우"
+        return "뇌우"
     elif description == "snow":
         return "눈"
     elif description == "mist":
         return "안개"
+    elif description == "light rain":
+        return "약한 비"
+    elif description == "moderate rain":
+        return "보통 비"
+    elif description == "heavy intensity rain":
+        return "강한 비"
+    elif description == "very heavy rain":
+        return "매우 강한 비"
+    elif description == "extreme rain":
+        return "극심한 비"
+    elif description == "freezing rain":
+        return "언 비"
+    elif description == "light snow":
+        return "약한 눈"
+    elif description == "heavy snow":
+        return "강한 눈"
+    elif description == "sleet":
+        return "진눈깨비"
+    elif description == "shower sleet":
+        return "소나기 진눈깨비"
+    elif description == "light rain and snow":
+        return "약한 비와 눈"
+    elif description == "rain and snow":
+        return "비와 눈"
+    elif description == "light shower snow":
+        return "약한 소나기 눈"
+    elif description == "shower snow":
+        return "소나기 눈"
+    elif description == "heavy shower snow":
+        return "강한 소나기 눈"
+    elif description == "fog":
+        return "안개"
+    elif description == "haze":
+        return "실안개"
+    elif description == "sand":
+        return "모래"
+    elif description == "dust":
+        return "먼지"
+    elif description == "volcanic ash":
+        return "화산재"
+    elif description == "squalls":
+        return "돌풍"
+    elif description == "tornado":
+        return "토네이도"
     else:
         return description
+
 
 @app.get("/")
 def root(request: Request, db: Session = Depends(get_db)):
