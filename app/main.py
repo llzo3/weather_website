@@ -182,6 +182,15 @@ def add_to_favorites(lat: float, lon: float, db: Session = Depends(get_db)):
         return {"message": "Added to favorites"}
     return {"message": "Record not found"}
 
+@app.delete("/favorites")
+def remove_from_favorites(lat: float, lon: float, db: Session = Depends(get_db)):
+    record = db.query(WeatherRecord).filter(WeatherRecord.lat == lat, WeatherRecord.lon == lon).first()
+    if record and record.is_favorite:
+        record.is_favorite = False
+        db.commit()
+        return {"message": "Removed from favorites"}
+    return {"message": "Record not found"}
+
 @app.get("/favorites")
 def get_favorites(request: Request, db: Session = Depends(get_db)):
     favorites = db.query(WeatherRecord).filter(WeatherRecord.is_favorite == True).all()
