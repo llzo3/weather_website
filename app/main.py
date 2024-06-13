@@ -77,7 +77,9 @@ def translate_weather_description(description):
         "dust": "먼지",
         "volcanic ash": "화산재",
         "squalls": "돌풍",
-        "tornado": "토네이도"
+        "tornado": "토네이도",
+        "튼구름": "구름 많음",  # 잘못된 번역 수정
+        "실 비": "가벼운 비"   # 잘못된 번역 수정
     }
     return translations.get(description, description)
 
