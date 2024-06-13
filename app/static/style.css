@@ -31,6 +31,31 @@ body {
   text-align: left;
 }
 
+.weather-details-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+}
+
+.weather-details-table, .forecast-table, th, td {
+  border: 1px solid #ddd;
+}
+
+.weather-details-table th, .weather-details-table td, .forecast-table th, .forecast-table td {
+  padding: 8px;
+  text-align: center;
+}
+
+.weather-details-table th, .forecast-table th {
+  background-color: #f4f4f4;
+}
+
+.date-row {
+  background-color: #f9f9f9;
+  font-weight: bold;
+  text-align: left;
+}
+
 .history-container,
 .favorites-container {
   background-color: #fff;

@@ -35,28 +35,32 @@ document.addEventListener('DOMContentLoaded', (event) => {
             .then(response => response.json())
             .then(data => {
                 document.getElementById('weather-header').textContent = `${data.city} 기상환경`;
-                document.getElementById('weather-details').innerHTML = `
-                    기온: ${data.temperature}°C<br>
-                    체감 온도: ${data.feels_like}°C<br>
-                    최저 기온: ${data.temp_min}°C<br>
-                    최고 기온: ${data.temp_max}°C<br>
-                    날씨 설명: ${data.description}<br>
-                    습도: ${data.humidity}%<br>
-                    풍속: ${data.wind_speed} m/s<br>
-                    기압: ${data.pressure} hPa<br>
-                    강수량: ${data.rain} mm<br>
-                    자외선 지수: ${data.uv_index}<br>
-                    일출: ${data.sunrise}<br>
-                    일몰: ${data.sunset}<br>
-                    현지 시간: ${data.date}<br>
-                    한국 시간: ${data.korea_time}<br>
-                    한국과의 시차: ${data.timezone_diff}시간
+                
+                let weatherDetailsHTML = `
+                    <table class="weather-details-table">
+                        <tr><th>기온</th><td>${data.temperature}°C</td></tr>
+                        <tr><th>체감 온도</th><td>${data.feels_like}°C</td></tr>
+                        <tr><th>최저 기온</th><td>${data.temp_min}°C</td></tr>
+                        <tr><th>최고 기온</th><td>${data.temp_max}°C</td></tr>
+                        <tr><th>날씨 설명</th><td>${data.description}</td></tr>
+                        <tr><th>습도</th><td>${data.humidity}%</td></tr>
+                        <tr><th>풍속</th><td>${data.wind_speed} m/s</td></tr>
+                        <tr><th>기압</th><td>${data.pressure} hPa</td></tr>
+                        <tr><th>강수량</th><td>${data.rain} mm</td></tr>
+                        <tr><th>자외선 지수</th><td>${data.uv_index}</td></tr>
+                        <tr><th>일출</th><td>${data.sunrise}</td></tr>
+                        <tr><th>일몰</th><td>${data.sunset}</td></tr>
+                        <tr><th>현지 시간</th><td>${data.date}</td></tr>
+                        <tr><th>한국 시간</th><td>${data.korea_time}</td></tr>
+                        <tr><th>한국과의 시차</th><td>${data.timezone_diff}시간</td></tr>
+                    </table>
                 `;
+                document.getElementById('weather-details').innerHTML = weatherDetailsHTML;
                 document.getElementById('weather-img').src = `/static/images/${getImageForWeather(data.description)}`;
                 document.getElementById('weather-img').alt = data.description;
                 document.body.style.backgroundImage = getBackgroundImage();
 
-                let forecastHTML = '<table><tr><th>날짜</th><th>시간</th><th>기온</th><th>체감 온도</th><th>최저 기온</th><th>최고 기온</th><th>날씨 설명</th><th>습도</th><th>풍속</th><th>강수량</th><th>강수 확률</th></tr>';
+                let forecastHTML = '<table class="forecast-table"><tr><th>날짜</th><th>시간</th><th>기온</th><th>체감 온도</th><th>최저 기온</th><th>최고 기온</th><th>날씨 설명</th><th>습도</th><th>풍속</th><th>강수량</th><th>강수 확률</th></tr>';
                 let currentDate = '';
                 data.forecast.forEach(item => {
                     let date = item.date.split(' ')[0];
