@@ -52,46 +52,58 @@ def root(request: Request, db: Session = Depends(get_db)):
 
 @app.get("/weather")
 def get_weather_by_coords(lat: float, lon: float, db: Session = Depends(get_db)):
-    URL = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API_KEY}&units=metric&lang=kr"
-    response = requests.get(URL)
+    current_weather_url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API_KEY}&units=metric&lang=kr"
+    forecast_url = f"https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={API_KEY}&units=metric&lang=kr"
+    
+    current_weather_response = requests.get(current_weather_url)
+    forecast_response = requests.get(forecast_url)
 
-    if response.status_code == 200:
-        data = response.json()
-        timezone_offset = data["timezone"]
+    if current_weather_response.status_code == 200 and forecast_response.status_code == 200:
+        current_data = current_weather_response.json()
+        forecast_data = forecast_response.json()
 
-        local_time = datetime.datetime.utcfromtimestamp(data["dt"] + timezone_offset).strftime("%Y년 %m월 %d일 %H시 %M분 %S초")
+        timezone_offset = current_data["timezone"]
+        local_time = datetime.datetime.utcfromtimestamp(current_data["dt"] + timezone_offset).strftime("%Y년 %m월 %d일 %H시 %M분 %S초")
         korea_time = datetime.datetime.now(pytz.timezone("Asia/Seoul")).strftime("%Y년 %m월 %d일 %H시 %M분 %S초")
-
-        sunrise_time = datetime.datetime.utcfromtimestamp(data["sys"]["sunrise"] + timezone_offset).strftime("%H:%M:%S")
-        sunset_time = datetime.datetime.utcfromtimestamp(data["sys"]["sunset"] + timezone_offset).strftime("%H:%M:%S")
-
-        # 한국 시간대 오프셋 (Asia/Seoul)
-        korea_offset = 9 * 3600  # 9시간을 초 단위로 변환
-
-        # 시차 계산
+        sunrise_time = datetime.datetime.utcfromtimestamp(current_data["sys"]["sunrise"] + timezone_offset).strftime("%H:%M:%S")
+        sunset_time = datetime.datetime.utcfromtimestamp(current_data["sys"]["sunset"] + timezone_offset).strftime("%H:%M:%S")
+        korea_offset = 9 * 3600
         timezone_diff = (timezone_offset - korea_offset) // 3600
 
         weather_data = {
-            "city": data["name"],
+            "city": current_data["name"],
             "lat": lat,
             "lon": lon,
             "date": local_time,
-            "temperature": data["main"]["temp"],
-            "feels_like": data["main"]["feels_like"],
-            "temp_min": data["main"]["temp_min"],
-            "temp_max": data["main"]["temp_max"],
-            "description": data["weather"][0]["description"],
-            "humidity": data["main"]["humidity"],
-            "wind_speed": data["wind"]["speed"],
-            "pressure": data["main"]["pressure"],
-            "uv_index": data.get("uvi", "N/A"),
+            "temperature": current_data["main"]["temp"],
+            "feels_like": current_data["main"]["feels_like"],
+            "temp_min": current_data["main"]["temp_min"],
+            "temp_max": current_data["main"]["temp_max"],
+            "description": current_data["weather"][0]["description"],
+            "humidity": current_data["main"]["humidity"],
+            "wind_speed": current_data["wind"]["speed"],
+            "pressure": current_data["main"]["pressure"],
+            "uv_index": current_data.get("uvi", "N/A"),
             "sunrise": sunrise_time,
             "sunset": sunset_time,
             "korea_time": korea_time,
-            "timezone_diff": timezone_diff
+            "timezone_diff": timezone_diff,
+            "forecast": [
+                {
+                    "date": item["dt_txt"],
+                    "temperature": item["main"]["temp"],
+                    "feels_like": item["main"]["feels_like"],
+                    "temp_min": item["main"]["temp_min"],
+                    "temp_max": item["main"]["temp_max"],
+                    "description": item["weather"][0]["description"],
+                    "humidity": item["main"]["humidity"],
+                    "wind_speed": item["wind"]["speed"],
+                    "pressure": item["main"]["pressure"]
+                }
+                for item in forecast_data["list"]
+            ]
         }
 
-        # 기존에 같은 위치 기록이 있으면 업데이트, 없으면 추가
         record = db.query(WeatherRecord).filter(WeatherRecord.lat == lat, WeatherRecord.lon == lon).first()
         if record:
             record.city = weather_data["city"]
